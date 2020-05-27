@@ -1,20 +1,24 @@
-<?php namespace Sebwite\FeedbackCompany\Model;
+<?php
+
+namespace Sebwite\FeedbackCompany\Model;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 
 class Config
 {
-    /** @var \Magento\Framework\App\Config\ScopeConfigInterface */
+    /** @var ScopeConfigInterface */
     protected $configInterface;
 
     protected $pathPrefix = 'feedbackcompany/general/%s';
+
+    protected $cachePath = BP . '/var/feedbackcompany_cache.json';
 
     protected $config = [];
 
     /**
      * Config constructor.
      *
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $configInterface
+     * @param ScopeConfigInterface $configInterface
      */
     public function __construct(ScopeConfigInterface $configInterface)
     {
@@ -113,7 +117,7 @@ class Config
      */
     protected function configFileExists()
     {
-        return is_file(__DIR__ . '/../cache.json');
+        return is_file($this->cachePath);
     }
 
     /**
@@ -121,7 +125,7 @@ class Config
      */
     protected function createConfigFile()
     {
-        file_put_contents(__DIR__ . '/../cache.json', []);
+        file_put_contents($this->cachePath, []);
     }
 
     /**
@@ -131,10 +135,10 @@ class Config
      */
     protected function getConfig()
     {
-        if (!is_file(__DIR__ . '/../cache.json')) {
+        if (!is_file($this->cachePath)) {
             return false;
         }
-        $config = file_get_contents(__DIR__ . '/../cache.json');
+        $config = file_get_contents($this->cachePath);
 
         return $config === 1 ? [] : json_decode($config, true);
     }
@@ -144,6 +148,6 @@ class Config
      */
     public function writeConfig()
     {
-        file_put_contents(__DIR__ . '/../cache.json', json_encode($this->config));
+        file_put_contents($this->cachePath, json_encode($this->config));
     }
 }
