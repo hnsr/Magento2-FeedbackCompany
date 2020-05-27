@@ -8,10 +8,11 @@ class FeedbackCompanyApi extends Request
     /**
      * fetchReviews method
      *
-     * @return array|\SimpleXMLElement
+     * @return array|boolean
      */
     public function fetchReviewsAndScore()
     {
+        // @fixme don't fetch all reviews if we don't need them, as this can get up to 4MiB of data
         $response = $this->doRequest($this->reviewsUrl);
         $response = json_decode($response, true);
 
@@ -21,8 +22,13 @@ class FeedbackCompanyApi extends Request
 
         $reviews      = $response[ 'data' ][ 0 ][ 'reviews' ];
         $totalReviews = $response[ 'data' ][ 0 ][ 'review_summary' ][ 'total_reviews' ];
-        $avgScore     = round(((array_sum(array_column($reviews, 'total_score')) / $totalReviews) * 2), 1);
-        $reviewData   = ['totalReviews' => $totalReviews, 'avgScore' => $avgScore];
+
+        $avgScore     = round(((array_sum(array_column($reviews, 'total_score')) / $totalReviews)), 1);
+
+        $reviewData   = [
+            'totalReviews' => $totalReviews,
+            'avgScore' => $avgScore
+        ];
 
         $this->config->setValue('reviews', $reviewData);
 
